@@ -1,0 +1,40 @@
+model IE400
+	uses "mmxprs";
+	
+	parameters
+		C = 50
+	end-parameters
+	declarations
+		N_items = 1..30
+		w: array(N_items) of integer
+		x: array(N_items, N_items) of mpvar !dec. var.
+		y: array(N_items) of mpvar !dec. var.
+	end-declarations
+	
+	!weights
+	w :: [115,125,84,123,117,132,90,103,95,106,76,104,112,133,148,118,96,106,99,105,125,109,142,123,103,107,86,114,141,75]
+	
+	!constraint: sum of xiy is 1
+	forall(j in N_items) do
+		sum(i in N_items)(x(i, j)) = 1
+	end-do
+	
+	!constraint: xij binary
+	forall(i in N_items, j in N_items) do
+		x(i, j) is_binary
+	end-do
+	
+	!constraint: yi is binary
+	forall(i in N_items) do
+		y(i) is_binary
+	end-do
+	
+	!constraint: sum of xij * wj <= c * yi
+	forall(i in N_items) do
+		sum(j in N_items)(w(j) * x(i, j)) <= C * y(i)
+	end-do
+	
+	!objective function:
+	minimize( sum(i in N_items)(y(i)) )
+end-model
+! 4
